@@ -296,8 +296,10 @@ class WordChainGame:
                 self.bot_score += 1
             elif 9 <= word_length <= 11:
                 self.bot_score += 2
-            elif word_length >= 12:
-                self.bot_score += 3
+            elif 12 <= word_length <= 15:
+               　self.bot_score　+= 4
+            elif word_length >= 16:
+                self.bot_score += 8
             self.turn = "player" # Bot starts, then player's turn
 
         while not self.game_over:
