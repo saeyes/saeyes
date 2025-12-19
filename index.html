@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>끝말잇기 방 시스템</title>
+</head>
+<body>
+
+<h2>🎮 끝말잇기</h2>
+
+<button onclick="createRoom()">방 만들기</button><br><br>
+
+<input id="room" placeholder="방 코드">
+<input id="name" placeholder="닉네임">
+<button onclick="joinRoom()">입장</button>
+
+<p id="turn"></p>
+<div id="log"></div>
+
+<input id="word" placeholder="단어 입력">
+<button onclick="sendWord()">제출</button>
+
+<script>
+let room = "";
+let name = "";
+
+function createRoom(){
+    fetch("/create", {method:"POST"})
+    .then(r=>r.json())
+    .then(d=>{
+        alert("방 코드: " + d.room);
+    });
+}
+
+function joinRoom(){
+    room = document.getElementById("room").value;
+    name = document.getElementById("name").value;
+
+    fetch("/join",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({room:room, name:name})
+    })
+    .then(r=>r.json())
+    .then(update);
+}
+
+function sendWord(){
+    fetch("/word",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            room:room,
+            name:name,
+            word:word.value
+        })
+    })
+    .then(r=>r.json())
+    .then(update);
+    word.value="";
+}
+
+function update(data){
+    if(data.error){
+        alert(data.error);
+        return;
+    }
+    log.innerHTML =
+        "현재 단어: " + data.current + "<br>" +
+        "사용 단어: " + data.used.join(", ");
+
+    turn.innerText = "👉 " + data.players[data.turn] + " 차례";
+}
+
+setInterval(()=>{
+    if(room){
+        fetch("/state?room="+room)
+        .then(r=>r.json())
+        .then(update);
+    }
+},2000);
+</script>
+
+</body>
+</html>
+ㄴ
